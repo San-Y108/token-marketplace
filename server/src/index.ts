@@ -6,7 +6,9 @@ import authRoutes from './routes/auth.js';
 import tokenRoutes from './routes/tokens.js';
 import marketplaceRoutes from './routes/marketplace.js';
 import proxyRoutes from './routes/proxy.js';
+import thcRoutes from './routes/thc.js';
 import adminRoutes from './routes/admin.js';
+import securityRoutes from './routes/security.js';
 import { initializeDatabase } from './utils/dbInit.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
@@ -47,9 +49,13 @@ app.use(`${apiPrefix}/auth`, authRoutes);
 app.use(`${apiPrefix}/tokens`, tokenRoutes);
 app.use(`${apiPrefix}/marketplace`, marketplaceRoutes);
 app.use(`${apiPrefix}/admin`, adminRoutes);
+app.use(`${apiPrefix}/security`, securityRoutes);
 
 // Token转发代理路由（OpenAI兼容）
 app.use('/v1', proxyRoutes);
+
+// THC协议兼容路由
+app.use('/thc/v1', thcRoutes);
 
 // 健康检查
 app.get('/health', (req, res) => {

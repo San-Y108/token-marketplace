@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(20) DEFAULT 'user' CHECK (role IN ('user', 'provider', 'admin')),
     points_balance DECIMAL(20, 8) DEFAULT 0,
+    is_blocked BOOLEAN DEFAULT false,
+    blocked_until TIMESTAMP,
+    block_reason TEXT,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -54,6 +57,38 @@ CREATE TABLE IF NOT EXISTS transactions (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- 安全事件表
+CREATE TABLE IF NOT EXISTS security_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    event_type VARCHAR(50) NOT NULL,
+    severity VARCHAR(20) NOT NULL CHECK (severity IN ('low', 'medium', 'high', 'critical')),
+    description TEXT NOT NULL,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- 请求日志表
+CREATE TABLE IF NOT EXISTS request_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    endpoint VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    metadata JSONB DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- IP黑名单表
+CREATE TABLE IF NOT EXISTS ip_blacklist (
+    ip_address VARCHAR(45) PRIMARY KEY,
+    reason TEXT NOT NULL,
+    expires_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_tokens_provider_id ON tokens(provider_id);
 CREATE INDEX IF NOT EXISTS idx_tokens_is_active ON tokens(is_active);
@@ -66,3 +101,11 @@ CREATE INDEX IF NOT EXISTS idx_transactions_provider_id ON transactions(provider
 CREATE INDEX IF NOT EXISTS idx_transactions_token_id ON transactions(token_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_status ON transactions(status);
 CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON transactions(created_at);
+CREATE INDEX IF NOT EXISTS idx_security_events_user_id ON security_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_security_events_event_type ON security_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_security_events_severity ON security_events(severity);
+CREATE INDEX IF NOT EXISTS idx_security_events_created_at ON security_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_request_logs_user_id ON request_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_request_logs_endpoint ON request_logs(endpoint);
+CREATE INDEX IF NOT EXISTS idx_request_logs_created_at ON request_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_ip_blacklist_expires_at ON ip_blacklist(expires_at);
