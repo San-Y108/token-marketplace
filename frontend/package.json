@@ -1,12 +1,11 @@
 {
   "name": "token-marketplace-frontend",
   "version": "1.0.0",
-  "description": "Token二级市场平台前端",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3001",
     "lint": "next lint"
   },
   "dependencies": {
