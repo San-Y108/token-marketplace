@@ -289,12 +289,15 @@ export class TransactionModel {
     }
 
     const result = await this.pool.query(query, params);
-    return result.rows[0] as {
-      totalTransactions: number;
-      totalTokensUsed: number;
-      totalPointsCharged: number;
-      completedTransactions: number;
-      failedTransactions: number;
+    const row = result.rows[0];
+
+    // PostgreSQL返回BigInt，需要转换为Number
+    return {
+      totalTransactions: Number(row.totaltransactions || row.totalTransactions || 0),
+      totalTokensUsed: Number(row.totaltokensused || row.totalTokensUsed || 0),
+      totalPointsCharged: Number(row.totalpointscharged || row.totalPointsCharged || 0),
+      completedTransactions: Number(row.completedtransactions || row.completedTransactions || 0),
+      failedTransactions: Number(row.failedtransactions || row.failedTransactions || 0)
     };
   }
 

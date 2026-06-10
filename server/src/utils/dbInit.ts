@@ -1,10 +1,9 @@
 import pg from 'pg';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// 使用process.cwd()作为基础目录
+const currentDir = process.cwd();
 
 let pool: pg.Pool | null = null;
 
@@ -31,7 +30,7 @@ export async function initializeDatabase(): Promise<void> {
   const pool = getDatabase();
 
   // 读取并执行schema
-  const schemaPath = path.resolve(__dirname, '..', '..', 'database', 'schema.sql');
+  const schemaPath = path.resolve(currentDir, '..', '..', 'database', 'schema.sql');
   const schema = fs.readFileSync(schemaPath, 'utf-8');
 
   try {

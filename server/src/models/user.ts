@@ -145,7 +145,8 @@ export class UserModel {
     const user = await this.findById(id);
     if (!user) return null;
 
-    const newBalance = user.points_balance + amount;
+    const currentBalance = parseFloat(user.points_balance as any);
+    const newBalance = currentBalance + amount;
     if (newBalance < 0) {
       throw new Error('Insufficient points balance');
     }
