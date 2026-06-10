@@ -10,7 +10,7 @@ let pool: pg.Pool | null = null;
 
 export function getDatabase(): pg.Pool {
   if (!pool) {
-    const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/token_marketplace';
+    const connectionString = process.env.DATABASE_URL || 'postgresql://yanshuo@localhost:5432/token_marketplace';
 
     pool = new pg.Pool({
       connectionString,

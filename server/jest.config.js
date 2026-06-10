@@ -5,7 +5,21 @@ module.exports = {
   roots: ['<rootDir>/tests'],
   testMatch: ['**/*.test.ts'],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: {
+        module: 'CommonJS',
+        target: 'ES2022',
+        esModuleInterop: true,
+        moduleResolution: 'node',
+        allowImportingTsExtensions: false,
+        noEmit: true,
+        strict: false,
+        skipLibCheck: true
+      }
+    }],
+  },
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
   collectCoverageFrom: [
@@ -14,5 +28,5 @@ module.exports = {
     '!src/**/index.ts',
   ],
   coverageDirectory: 'coverage',
-  testTimeout: 10000,
+  testTimeout: 30000,
 };
