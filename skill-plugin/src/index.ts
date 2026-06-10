@@ -5,7 +5,8 @@ import inquirer from 'inquirer';
 import chalk from 'chalk';
 import ora from 'ora';
 import Conf from 'conf';
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
+type AxiosInstance = any;
 
 // 配置存储
 const config = new Conf({
