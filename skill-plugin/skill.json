@@ -1,0 +1,187 @@
+{
+  "name": "token-marketplace",
+  "displayName": "Token Marketplace",
+  "version": "1.0.0",
+  "description": "连接Token二级市场平台，支持token上传、下载和交易",
+  "author": "Token Marketplace Team",
+  "license": "ISC",
+  "homepage": "https://github.com/your-org/token-marketplace",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/token-marketplace.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "test": "jest",
+    "lint": "eslint src --ext .ts"
+  },
+  "dependencies": {
+    "axios": "^1.7.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "conf": "^12.0.0",
+    "inquirer": "^9.2.0",
+    "ora": "^8.0.0"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.14.0",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.4",
+    "tsx": "^4.15.0",
+    "typescript": "^5.5.0"
+  },
+  "keywords": [
+    "token",
+    "marketplace",
+    "ai",
+    "api",
+    "skill",
+    "plugin"
+  ],
+  "commands": [
+    {
+      "name": "bind",
+      "description": "绑定平台账号",
+      "usage": "token-marketplace bind",
+      "options": [
+        {
+          "flags": "-s, --server <url>",
+          "description": "平台服务器地址",
+          "default": "http://localhost:3000"
+        },
+        {
+          "flags": "-u, --username <username>",
+          "description": "用户名"
+        },
+        {
+          "flags": "-p, --password <password>",
+          "description": "密码"
+        }
+      ]
+    },
+    {
+      "name": "unbind",
+      "description": "解绑平台账号",
+      "usage": "token-marketplace unbind"
+    },
+    {
+      "name": "upload",
+      "description": "上传token服务",
+      "usage": "token-marketplace upload [options]",
+      "options": [
+        {
+          "flags": "-n, --name <name>",
+          "description": "Token名称",
+          "required": true
+        },
+        {
+          "flags": "-m, --model <model>",
+          "description": "模型名称",
+          "required": true
+        },
+        {
+          "flags": "-u, --url <url>",
+          "description": "API基础URL",
+          "required": true
+        },
+        {
+          "flags": "-k, --key <key>",
+          "description": "API密钥",
+          "required": true
+        },
+        {
+          "flags": "-p, --protocol <protocol>",
+          "description": "协议类型 (openai|thc|custom)",
+          "default": "openai"
+        },
+        {
+          "flags": "--price <price>",
+          "description": "每1000token价格",
+          "default": "0.01"
+        }
+      ]
+    },
+    {
+      "name": "list",
+      "description": "列出已上传的token",
+      "usage": "token-marketplace list [options]",
+      "options": [
+        {
+          "flags": "-a, --all",
+          "description": "显示所有token（包括停用的）"
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "description": "查看服务状态",
+      "usage": "token-marketplace status"
+    },
+    {
+      "name": "balance",
+      "description": "查看积分余额",
+      "usage": "token-marketplace balance"
+    },
+    {
+      "name": "history",
+      "description": "查看交易历史",
+      "usage": "token-marketplace history [options]",
+      "options": [
+        {
+          "flags": "-l, --limit <limit>",
+          "description": "显示数量",
+          "default": "10"
+        },
+        {
+          "flags": "-r, --role <role>",
+          "description": "角色 (consumer|provider)",
+          "default": "consumer"
+        }
+      ]
+    },
+    {
+      "name": "help",
+      "description": "显示帮助信息",
+      "usage": "token-marketplace help [command]"
+    }
+  ],
+  "hooks": {
+    "before:bind": "src/hooks/beforeBind.ts",
+    "after:bind": "src/hooks/afterBind.ts",
+    "before:upload": "src/hooks/beforeUpload.ts",
+    "after:upload": "src/hooks/afterUpload.ts"
+  },
+  "config": {
+    "server": {
+      "type": "string",
+      "default": "http://localhost:3000",
+      "description": "平台服务器地址"
+    },
+    "username": {
+      "type": "string",
+      "description": "用户名"
+    },
+    "apiKey": {
+      "type": "string",
+      "description": "API密钥"
+    },
+    "autoSync": {
+      "type": "boolean",
+      "default": true,
+      "description": "自动同步状态"
+    },
+    "syncInterval": {
+      "type": "number",
+      "default": 60000,
+      "description": "同步间隔（毫秒）"
+    }
+  }
+}

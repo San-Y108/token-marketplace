@@ -1,0 +1,36 @@
+{
+  "name": "token-marketplace",
+  "version": "1.0.0",
+  "description": "Token二级市场平台 - 支持AI模型token的上传、下载和交易",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm --filter token-marketplace-server dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "build": "pnpm --filter token-marketplace-server build",
+    "build:frontend": "pnpm --filter frontend build",
+    "start": "pnpm --filter token-marketplace-server start",
+    "test": "pnpm --filter token-marketplace-server test",
+    "test:coverage": "pnpm --filter token-marketplace-server test:coverage",
+    "lint": "pnpm --filter token-marketplace-server lint",
+    "db:init": "pnpm --filter token-marketplace-server db:init",
+    "install:all": "pnpm install",
+    "clean": "rm -rf node_modules server/node_modules frontend/node_modules"
+  },
+  "keywords": [
+    "token",
+    "marketplace",
+    "ai",
+    "api",
+    "proxy"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.5.2",
+      "onFail": "download"
+    }
+  },
+  "type": "module"
+}

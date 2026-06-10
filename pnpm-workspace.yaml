@@ -1,0 +1,7 @@
+packages:
+  - 'server'
+  - 'frontend'
+  - 'skill-plugin'
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
