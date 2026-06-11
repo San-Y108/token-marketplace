@@ -1,4 +1,5 @@
 const request = require('supertest');
+const { Pool } = require('pg');
 
 // 动态导入app
 let app: any;
@@ -7,6 +8,11 @@ beforeAll(async () => {
   // 设置环境变量
   process.env.DATABASE_URL = 'postgresql://yanshuo@localhost:5432/token_marketplace';
   process.env.JWT_SECRET = 'test-secret';
+
+  // 清理测试数据
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  await pool.query("DELETE FROM users WHERE username LIKE 'apitest_%'");
+  await pool.end();
 
   // 动态导入
   const module = await import('../src/index.js');
@@ -17,6 +23,8 @@ describe('API Integration Tests', () => {
   let accessToken: string;
   let userId: string;
   let tokenId: string;
+  const testUsername = `apitest_${Date.now()}`;
+  const testEmail = `api_${Date.now()}@test.com`;
 
   describe('Health Check', () => {
     it('should return health status', async () => {
@@ -32,8 +40,8 @@ describe('API Integration Tests', () => {
       const res = await request(app)
         .post('/api/auth/register')
         .send({
-          username: 'apitest',
-          email: 'api@test.com',
+          username: testUsername,
+          email: testEmail,
           password: 'password123',
           role: 'provider'
         });
@@ -52,7 +60,7 @@ describe('API Integration Tests', () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send({
-          username: 'apitest',
+          username: testUsername,
           password: 'password123'
         });
 
@@ -68,7 +76,7 @@ describe('API Integration Tests', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.username).toBe('apitest');
+      expect(res.body.data.username).toBe(testUsername);
     });
   });
 

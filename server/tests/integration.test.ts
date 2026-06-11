@@ -1,18 +1,28 @@
 import request from 'supertest';
+import { Pool } from 'pg';
 import app from '../src/index.js';
 
 describe('Integration Tests', () => {
   let accessToken: string;
   let userId: string;
   let tokenId: string;
+  const testUsername = `integrationtest_${Date.now()}`;
+  const testEmail = `integration_${Date.now()}@test.com`;
+
+  beforeAll(async () => {
+    // 清理可能存在的测试数据
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    await pool.query("DELETE FROM users WHERE username LIKE 'integrationtest_%'");
+    await pool.end();
+  });
 
   describe('Authentication Flow', () => {
     it('should register a new user', async () => {
       const res = await request(app)
         .post('/api/auth/register')
         .send({
-          username: 'integrationtest',
-          email: 'integration@test.com',
+          username: testUsername,
+          email: testEmail,
           password: 'password123',
           role: 'provider'
         });
@@ -30,7 +40,7 @@ describe('Integration Tests', () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send({
-          username: 'integrationtest',
+          username: testUsername,
           password: 'password123'
         });
 
@@ -46,7 +56,7 @@ describe('Integration Tests', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.username).toBe('integrationtest');
+      expect(res.body.data.username).toBe(testUsername);
     });
   });
 

@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import request from 'supertest';
 import { Pool } from 'pg';
-import app from '../src/index.js';
-import { setupTestDatabase, cleanupTestData, closeTestDatabase, isDbAvailable } from '../tests/setup.js';
+import app from '../../src/index.js';
+import { setupTestDatabase, cleanupTestData, closeTestDatabase, isDbAvailable } from '../setup.js';
 
 // 如果数据库不可用，跳过测试
 const describeOrSkip = isDbAvailable() ? describe : describe.skip;
 
 describeOrSkip('Auth API', () => {
-  let pool: Pool;
+  let pool: Pool | null;
 
   beforeAll(async () => {
     pool = await setupTestDatabase();

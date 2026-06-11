@@ -4,19 +4,13 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/tests'],
   testMatch: ['**/*.test.ts'],
+  testEnvironmentOptions: {
+    NODE_ENV: 'test'
+  },
   transform: {
     '^.+\\.ts$': ['ts-jest', {
       useESM: true,
-      tsconfig: {
-        module: 'ESNext',
-        target: 'ES2022',
-        esModuleInterop: true,
-        moduleResolution: 'bundler',
-        strict: false,
-        skipLibCheck: true,
-        types: ['jest', 'node'],
-        noEmit: true
-      }
+      tsconfig: './tsconfig.test.json'
     }],
   },
   moduleNameMapper: {

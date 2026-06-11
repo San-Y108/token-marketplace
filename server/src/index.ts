@@ -86,10 +86,15 @@ async function startServer() {
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
-    process.exit(1);
+    if (process.env.NODE_ENV !== 'test') {
+      process.exit(1);
+    }
   }
 }
 
-startServer();
+// 只在非测试环境下自动启动
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
 
 export default app;

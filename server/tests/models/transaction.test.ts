@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import { Pool } from 'pg';
-import { TransactionModel, CreateTransactionData } from '../src/models/transaction.js';
-import { UserModel } from '../src/models/user.js';
-import { TokenModel } from '../src/models/token.js';
-import { setupTestDatabase, cleanupTestData, closeTestDatabase, isDbAvailable } from './setup.js';
+import { TransactionModel, CreateTransactionData } from '../../src/models/transaction.js';
+import { UserModel } from '../../src/models/user.js';
+import { TokenModel } from '../../src/models/token.js';
+import { setupTestDatabase, cleanupTestData, closeTestDatabase, isDbAvailable } from '../setup.js';
 
 // 如果数据库不可用，跳过测试
 const describeOrSkip = isDbAvailable() ? describe : describe.skip;
 
 describeOrSkip('TransactionModel', () => {
-  let pool: Pool;
+  let pool: Pool | null;
   let transactionModel: TransactionModel;
   let userModel: UserModel;
   let tokenModel: TokenModel;

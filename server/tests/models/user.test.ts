@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
 import { Pool } from 'pg';
-import { UserModel, CreateUserData } from '../src/models/user.js';
-import { setupTestDatabase, cleanupTestData, closeTestDatabase, isDbAvailable } from './setup.js';
+import { UserModel, CreateUserData } from '../../src/models/user.js';
+import { setupTestDatabase, cleanupTestData, closeTestDatabase, isDbAvailable } from '../setup.js';
 
 // 如果数据库不可用，跳过测试
 const describeOrSkip = isDbAvailable() ? describe : describe.skip;
 
 describeOrSkip('UserModel', () => {
-  let pool: Pool;
+  let pool: Pool | null;
   let userModel: UserModel;
 
   beforeAll(async () => {

@@ -30,7 +30,12 @@ const generateApiKeySchema = z.object({
 router.post('/register', async (req: Request, res: Response) => {
   try {
     const validatedData = registerSchema.parse(req.body);
-    const result = await authService.register(validatedData);
+    const result = await authService.register({
+      username: validatedData.username,
+      email: validatedData.email,
+      password: validatedData.password,
+      role: validatedData.role
+    });
 
     res.status(201).json({
       success: true,
