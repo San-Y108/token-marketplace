@@ -2,7 +2,7 @@ import { Router, Response } from 'express';
 import { z } from 'zod';
 import { tokenModel } from '../models/token.js';
 import { billingService } from '../services/billing.js';
-import { authMiddleware, AuthRequest } from '../middleware/auth.js';
+import { authMiddleware, AuthRequest, requireRole } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -13,12 +13,12 @@ const purchaseSchema = z.object({
 });
 
 const querySchema = z.object({
-  page: z.string().transform(Number).optional(),
-  limit: z.string().transform(Number).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
   protocol: z.string().optional(),
   search: z.string().optional(),
-  min_price: z.string().transform(Number).optional(),
-  max_price: z.string().transform(Number).optional()
+  min_price: z.coerce.number().min(0).optional(),
+  max_price: z.coerce.number().min(0).optional()
 });
 
 // 浏览市场（公开）
@@ -253,16 +253,23 @@ router.get('/balance', authMiddleware, async (req: AuthRequest, res: Response) =
   }
 });
 
-// 充值积分
-router.post('/recharge', authMiddleware, async (req: AuthRequest, res: Response) => {
+// 充值积分（仅管理员）
+router.post('/recharge', authMiddleware, requireRole('admin'), async (req: AuthRequest, res: Response) => {
   try {
-    const { amount } = req.body;
-    const user = req.user;
+    const { amount, user_id } = req.body;
+    const admin = req.user;
 
-    if (!user) {
+    if (!admin) {
       return res.status(401).json({
         success: false,
-        error: 'User not found'
+        error: 'Authentication required'
+      });
+    }
+
+    if (!user_id) {
+      return res.status(400).json({
+        success: false,
+        error: 'user_id is required'
       });
     }
 
@@ -273,14 +280,15 @@ router.post('/recharge', authMiddleware, async (req: AuthRequest, res: Response)
       });
     }
 
-    const newBalance = await billingService.rechargePoints(user.userId, amount);
+    const newBalance = await billingService.rechargePoints(user_id, amount);
 
     res.json({
       success: true,
       data: {
-        user_id: user.userId,
+        user_id: user_id,
         points_recharged: amount,
-        new_balance: newBalance
+        new_balance: newBalance,
+        recharged_by: admin.userId
       }
     });
   } catch (error) {

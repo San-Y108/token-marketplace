@@ -37,13 +37,17 @@
 
 ### 安全特性
 - ✅ JWT Token 认证
-- ✅ API Key 认证
+- ✅ API Key bcrypt哈希存储
 - ✅ RBAC 权限控制
 - ✅ 请求频率限制
 - ✅ 输入验证（Zod）
-- ✅ SQL 注入防护
+- ✅ SQL 注入防护（参数化查询）
 - ✅ XSS 防护
 - ✅ CORS 配置
+- ✅ 敏感字段自动隐藏
+- ✅ API Key所有权校验
+- ✅ 积分原子性更新（防并发）
+- ✅ Docker安全配置（环境变量注入）
 
 ---
 
@@ -151,19 +155,24 @@ cd frontend && npm run dev
 ### Token 管理
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/tokens` | 获取 Token 列表 |
+| GET | `/api/tokens` | 获取 Token 列表（公开） |
+| GET | `/api/tokens/detail/:id` | 获取 Token 详情（公开） |
+| GET | `/api/tokens/provider/:providerId` | 获取提供者 Token 列表 |
 | POST | `/api/tokens` | 创建 Token（需要 provider 角色） |
-| GET | `/api/tokens/:id` | 获取 Token 详情 |
-| PUT | `/api/tokens/:id` | 更新 Token |
-| DELETE | `/api/tokens/:id` | 删除 Token |
+| PUT | `/api/tokens/:id` | 更新 Token（需要所有权） |
+| DELETE | `/api/tokens/:id` | 删除 Token（需要所有权） |
+| PATCH | `/api/tokens/:id/status` | 激活/停用 Token（需要所有权） |
 
 ### 市场交易
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/marketplace/browse` | 浏览市场 |
+| GET | `/api/marketplace/browse` | 浏览市场（公开） |
+| GET | `/api/marketplace/stats` | 市场统计（公开） |
+| POST | `/api/marketplace/preview` | 预览购买费用 |
 | POST | `/api/marketplace/purchase` | 购买 Token 访问权 |
 | GET | `/api/marketplace/balance` | 查询积分余额 |
-| POST | `/api/marketplace/recharge` | 充值积分 |
+| POST | `/api/marketplace/recharge` | 充值积分（仅管理员） |
+| GET | `/api/marketplace/transactions` | 交易历史 |
 
 ### Token 转发代理（OpenAI 兼容）
 | 方法 | 路径 | 说明 |

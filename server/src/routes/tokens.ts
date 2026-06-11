@@ -28,11 +28,11 @@ const updateTokenSchema = z.object({
 });
 
 const querySchema = z.object({
-  page: z.string().transform(Number).optional(),
-  limit: z.string().transform(Number).optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).optional(),
   protocol: z.string().optional(),
   search: z.string().optional(),
-  is_active: z.string().transform(val => val === 'true').optional()
+  is_active: z.coerce.boolean().optional()
 });
 
 // 获取所有Token（公开）
@@ -110,6 +110,27 @@ router.get('/detail/:id', async (req: AuthRequest, res: Response) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch token'
+    });
+  }
+});
+
+// 获取提供者的Token列表（必须在/:id之前）
+router.get('/provider/:providerId', async (req: AuthRequest, res: Response) => {
+  try {
+    const { providerId } = req.params;
+    const tokens = await tokenModel.findByProviderId(providerId);
+
+    // 隐藏敏感字段
+    const sanitizedTokens = tokens.map(({ api_key_encrypted, base_url, ...token }) => token);
+
+    res.json({
+      success: true,
+      data: sanitizedTokens
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch provider tokens'
     });
   }
 });
@@ -311,24 +332,6 @@ router.patch('/:id/status', authMiddleware, async (req: AuthRequest, res: Respon
     res.status(500).json({
       success: false,
       error: 'Failed to update token status'
-    });
-  }
-});
-
-// 获取提供者的Token列表
-router.get('/provider/:providerId', async (req: AuthRequest, res: Response) => {
-  try {
-    const { providerId } = req.params;
-    const tokens = await tokenModel.findByProviderId(providerId);
-
-    res.json({
-      success: true,
-      data: tokens
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch provider tokens'
     });
   }
 });

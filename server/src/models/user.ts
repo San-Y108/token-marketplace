@@ -142,16 +142,29 @@ export class UserModel {
   }
 
   async updatePoints(id: string, amount: number): Promise<User | null> {
-    const user = await this.findById(id);
-    if (!user) return null;
+    // 原子性更新积分余额，防止并发问题
+    // 使用条件更新确保余额不会变为负数
+    const query = `
+      UPDATE users
+      SET points_balance = points_balance + $1, updated_at = NOW()
+      WHERE id = $2 AND (points_balance + $1) >= 0
+      RETURNING *
+    `;
 
-    const currentBalance = parseFloat(user.points_balance as any);
-    const newBalance = currentBalance + amount;
-    if (newBalance < 0) {
+    const result = await this.pool.query(query, [amount, id]);
+    const user = result.rows[0] as User | undefined;
+
+    if (!user) {
+      // 检查用户是否存在
+      const existingUser = await this.findById(id);
+      if (!existingUser) {
+        return null;
+      }
+      // 用户存在但余额不足
       throw new Error('Insufficient points balance');
     }
 
-    return this.update(id, { points_balance: newBalance });
+    return user;
   }
 
   async delete(id: string): Promise<boolean> {

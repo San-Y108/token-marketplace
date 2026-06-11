@@ -121,15 +121,14 @@ describe('Integration Tests', () => {
       expect(res.body.data.points_balance).toBeDefined();
     });
 
-    it('should recharge points', async () => {
+    it('should reject recharge without admin role', async () => {
       const res = await request(app)
         .post('/api/marketplace/recharge')
         .set('Authorization', `Bearer ${accessToken}`)
-        .send({ amount: 100 });
+        .send({ amount: 100, user_id: userId });
 
-      expect(res.status).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.data.points_recharged).toBe(100);
+      // 普通用户不能充值，需要admin角色
+      expect(res.status).toBe(403);
     });
   });
 

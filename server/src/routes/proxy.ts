@@ -37,7 +37,7 @@ const embeddingSchema = z.object({
   encoding_format: z.enum(['float', 'base64']).optional()
 });
 
-// 聊天补全
+// 聊天补全（暂不支持stream）
 router.post('/chat/completions', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const validatedData = chatCompletionSchema.parse(req.body);
@@ -47,6 +47,17 @@ router.post('/chat/completions', authMiddleware, async (req: AuthRequest, res: R
       return res.status(401).json({
         success: false,
         error: 'Authentication required'
+      });
+    }
+
+    // 暂不支持stream模式
+    if (validatedData.stream) {
+      return res.status(400).json({
+        error: {
+          message: 'Streaming is not yet supported. Please set stream=false.',
+          type: 'invalid_request_error',
+          code: 'stream_not_supported'
+        }
       });
     }
 
