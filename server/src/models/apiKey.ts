@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { getDatabase } from '../utils/dbInit.js';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -121,9 +122,7 @@ export class ApiKeyModel {
   }
 
   async verifyKey(apiKey: string, storedHash: string): Promise<boolean> {
-    // 在实际应用中，这里应该使用bcrypt或其他安全的hash比较
-    // 简化实现：直接比较（实际应该hash后比较）
-    return apiKey === storedHash;
+    return bcrypt.compare(apiKey, storedHash);
   }
 
   async count(options?: { userId?: string; isActive?: boolean }): Promise<number> {

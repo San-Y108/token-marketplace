@@ -1,4 +1,6 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import { v4 as uuidv4 } from 'uuid';
 import { userModel, User, CreateUserData } from '../models/user.js';
 import { apiKeyModel } from '../models/apiKey.js';
@@ -191,16 +193,16 @@ export class AuthService {
   }
 
   async generateApiKey(userId: string, name?: string): Promise<{ apiKey: string; keyId: string }> {
-    // 生成随机API Key
-    const apiKey = `tk_${uuidv4().replace(/-/g, '')}`;
+    // 生成高熵随机API Key。完整Key仅返回一次，数据库只保存bcrypt哈希。
+    const apiKey = `tk_${randomBytes(32).toString('hex')}`;
     const keyPrefix = apiKey.substring(0, 8);
     const keyId = uuidv4();
+    const keyHash = await bcrypt.hash(apiKey, 12);
 
-    // 存储API Key
     await apiKeyModel.create({
       id: keyId,
       user_id: userId,
-      key_hash: apiKey, // 在实际应用中应该hash
+      key_hash: keyHash,
       key_prefix: keyPrefix,
       name: name || 'API Key',
       permissions: JSON.stringify({ read: true, write: true })

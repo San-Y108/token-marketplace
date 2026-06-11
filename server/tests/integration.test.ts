@@ -93,7 +93,7 @@ describe('Integration Tests', () => {
 
     it('should get token details', async () => {
       const res = await request(app)
-        .get(`/api/tokens/${tokenId}`);
+        .get(`/api/tokens/detail/${tokenId}`);
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);

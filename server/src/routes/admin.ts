@@ -89,7 +89,7 @@ router.get('/users', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// 获取用户详情
+// 获取用户详情（隐藏敏感字段）
 router.get('/users/:userId', async (req: AuthRequest, res: Response) => {
   try {
     const { userId } = req.params;
@@ -111,11 +111,14 @@ router.get('/users/:userId', async (req: AuthRequest, res: Response) => {
       transactionModel.findByConsumerId(userId)
     ]);
 
+    // 隐藏token敏感字段
+    const sanitizedTokens = userTokens.map(({ api_key_encrypted, base_url, ...token }) => token);
+
     res.json({
       success: true,
       data: {
         ...sanitizedUser,
-        tokens: userTokens,
+        tokens: sanitizedTokens,
         transactions: userTransactions
       }
     });
@@ -203,7 +206,7 @@ router.patch('/users/:userId/points', async (req: AuthRequest, res: Response) =>
   }
 });
 
-// 获取Token列表（管理员视图）
+// 获取Token列表（管理员视图，隐藏敏感字段）
 router.get('/tokens', async (req: AuthRequest, res: Response) => {
   try {
     const { provider_id, is_active, protocol, limit, offset } = req.query;
@@ -216,9 +219,12 @@ router.get('/tokens', async (req: AuthRequest, res: Response) => {
       offset: offset ? parseInt(offset as string) : undefined
     });
 
+    // 隐藏敏感字段
+    const sanitizedTokens = tokens.map(({ api_key_encrypted, base_url, ...token }) => token);
+
     res.json({
       success: true,
-      data: tokens
+      data: sanitizedTokens
     });
   } catch (error) {
     res.status(500).json({
@@ -351,7 +357,7 @@ router.post('/transactions/:transactionId/refund', async (req: AuthRequest, res:
   }
 });
 
-// 获取API Key列表
+// 获取API Key列表（隐藏敏感字段）
 router.get('/api-keys', async (req: AuthRequest, res: Response) => {
   try {
     const { user_id, is_active, limit, offset } = req.query;
@@ -363,9 +369,12 @@ router.get('/api-keys', async (req: AuthRequest, res: Response) => {
       offset: offset ? parseInt(offset as string) : undefined
     });
 
+    // 隐藏敏感字段
+    const sanitizedKeys = apiKeys.map(({ key_hash, permissions, ...key }) => key);
+
     res.json({
       success: true,
-      data: apiKeys
+      data: sanitizedKeys
     });
   } catch (error) {
     res.status(500).json({

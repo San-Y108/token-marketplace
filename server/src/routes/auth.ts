@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { authService } from '../services/auth.js';
+import { apiKeyModel } from '../models/apiKey.js';
 import { authMiddleware, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
@@ -178,7 +179,7 @@ router.post('/api-keys', authMiddleware, async (req: AuthRequest, res: Response)
   }
 });
 
-// 获取用户的API Keys
+// 获取用户的API Keys（隐藏敏感字段）
 router.get('/api-keys', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
@@ -192,9 +193,12 @@ router.get('/api-keys', authMiddleware, async (req: AuthRequest, res: Response) 
 
     const apiKeys = await authService.getUserApiKeys(user.userId);
 
+    // 隐藏敏感字段
+    const sanitizedKeys = apiKeys.map(({ key_hash, permissions, ...key }) => key);
+
     res.json({
       success: true,
-      data: apiKeys
+      data: sanitizedKeys
     });
   } catch (error) {
     res.status(500).json({
@@ -204,7 +208,7 @@ router.get('/api-keys', authMiddleware, async (req: AuthRequest, res: Response) 
   }
 });
 
-// 撤销API Key
+// 撤销API Key（需要验证所有权）
 router.delete('/api-keys/:keyId', authMiddleware, async (req: AuthRequest, res: Response) => {
   try {
     const user = req.user;
@@ -214,6 +218,15 @@ router.delete('/api-keys/:keyId', authMiddleware, async (req: AuthRequest, res: 
       return res.status(401).json({
         success: false,
         error: 'User not found'
+      });
+    }
+
+    // 验证API Key是否属于当前用户
+    const key = await apiKeyModel.findById(keyId);
+    if (!key || key.user_id !== user.userId) {
+      return res.status(404).json({
+        success: false,
+        error: 'API key not found'
       });
     }
 

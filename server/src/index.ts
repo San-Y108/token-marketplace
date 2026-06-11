@@ -10,7 +10,7 @@ import thcRoutes from './routes/thc.js';
 import adminRoutes from './routes/admin.js';
 import securityRoutes from './routes/security.js';
 import { initializeDatabase } from './utils/dbInit.js';
-import { errorHandler } from './middleware/errorHandler.js';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { requestLogger } from './middleware/requestLogger.js';
 
 // 加载环境变量
@@ -67,7 +67,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 错误处理
+// 404处理和错误处理
+app.use(notFoundHandler);
 app.use(errorHandler);
 
 // 初始化数据库并启动服务器

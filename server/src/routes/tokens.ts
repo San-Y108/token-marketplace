@@ -55,10 +55,13 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       isActive: query.is_active !== undefined ? query.is_active : true
     });
 
+    // 隐藏敏感字段
+    const sanitizedTokens = tokens.map(({ api_key_encrypted, base_url, ...token }) => token);
+
     res.json({
       success: true,
       data: {
-        tokens,
+        tokens: sanitizedTokens,
         pagination: {
           page,
           limit,
@@ -83,8 +86,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// 获取单个Token详情
-router.get('/:id', async (req: AuthRequest, res: Response) => {
+// 获取单个Token详情（隐藏敏感字段）
+router.get('/detail/:id', async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const token = await tokenModel.findById(id);
@@ -96,9 +99,12 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       });
     }
 
+    // 隐藏敏感字段
+    const { api_key_encrypted, base_url, ...sanitizedToken } = token;
+
     res.json({
       success: true,
-      data: token
+      data: sanitizedToken
     });
   } catch (error) {
     res.status(500).json({

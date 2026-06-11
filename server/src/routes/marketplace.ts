@@ -48,10 +48,13 @@ router.get('/browse', async (req: AuthRequest, res: Response) => {
 
     const total = await tokenModel.count({ isActive: true });
 
+    // 隐藏敏感字段
+    const sanitizedTokens = filteredTokens.map(({ api_key_encrypted, base_url, ...token }) => token);
+
     res.json({
       success: true,
       data: {
-        tokens: filteredTokens,
+        tokens: sanitizedTokens,
         pagination: {
           page,
           limit,
